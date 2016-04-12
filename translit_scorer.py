@@ -2,6 +2,7 @@
 
 import sys
 import os
+from SylError import SylError
 
 if __name__ == '__main__':
   try:
@@ -90,43 +91,29 @@ def computeAllSylErrors(output, ref, sclitePath, langSpecs):
 
   [tmpOutput, tmpRef] = WriteTmpSylFiles(oPartsList, rPartsList)
   reportPath = ComputeScliteScore(tmpOutput, tmpRef, tmpDir)
-  # reportFile = os.path.join(tmpDir, reportName + '.pra')
-  # computeSylErrors(sylList, reportFile, oTonesFile, rTonesFile)
+  computeSylErrors(reporPath, oPartsList, oTonesList, rPartsList, rTonesList)
 
 
 #-------------------------------------------------------------------------#
 def computeSylErrors(reportPath, oTonesPath, rTonesPath):
   reportFile = open(reportPath, 'r')
+  count = 0
   for line in reportFile:
     parts = [part.strip() for part in line.split()]
     if parts[0] == 'REF:':
-      ref = parts[1:]
-    elif parts[0] == 'HYP:':
-      hyp = parts[1:]
+      ref = ' '.join(parts[1:]) + ' '
     elif parts[0] == 'Eval:':
-      score = parts[1:]
-      
-      
+      score = ' '.join(parts[1:]) + ' '
+      newSylError = SylError()
 
-#-------------------------------------------------------------------------#
-def processRefSylStruct(ref_parts, langSpecs):
-  if len(ref_parts) == 3:
-    self.ref[ONSET] = ref_parts[0]
-    self.ref[NUCLEUS] = ref_parts[1]
-    self.ref[CODA] = ref_parts[2]
-  elif len(ref_parts) == 2:
-    if ref_parts[0] in langSpecs[NUCLEUS]:
-      self.ref[NUCLEUS] = ref_parts[0]
-      self.ref[CODA] = ref_parts[1]
-    if ref_parts[0] in langSpecs[ONSET]:
-      self.ref[ONSET] = ref_parts[0]
-      self.ref[NUCLEUS] = ref_parts[1]
-  elif len(ref_parts) == 1:
-    self.ref[NUCLEUS] = ref_parts[0]
-  else:
-    print("Reference syllable with length 0!")
-    exit
+      oParts = oPartsList[count]
+      oTone  = oTonesList[count]
+      rParts = rPartsList[count]
+      rTone  = rTonesList[count]
+      newSylError.computePen(oParts, oTone, rParts, rTone, ref, score)
 
+      count = count + 1
+      
 
 #-------------------------------------------------------------------------#
 def SplitTones(oSyl, rSyl):
