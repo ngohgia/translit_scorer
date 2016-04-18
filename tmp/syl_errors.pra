@@ -38,24 +38,24 @@ Eval: D   S S
 
 Speaker sentences   3:  4)   #utts: 1
 id: (4)
-Scores: (#C #S #D #I) 0 2 0 0
-REF:  F @I 
-HYP:  S @: 
-Eval: S S  
+Scores: (#C #S #D #I) 0 2 0 2
+REF:  * * F @I 
+HYP:  S R E @: 
+Eval: I I S S  
 
 Speaker sentences   4:  5)   #utts: 1
 id: (5)
-Scores: (#C #S #D #I) 2 0 0 0
-REF:  s @: 
-HYP:  s @: 
-Eval:      
+Scores: (#C #S #D #I) 2 0 0 2
+REF:  s * * @: 
+HYP:  s R E @: 
+Eval:   I I    
 
 Speaker sentences   5:  6)   #utts: 1
 id: (6)
-Scores: (#C #S #D #I) 0 2 1 0
-REF:  B_< U K  
-HYP:  *** S @: 
-Eval: D   S S  
+Scores: (#C #S #D #I) 0 3 0 1
+REF:  * B_< U K  
+HYP:  S R   E @: 
+Eval: I S   S S  
 
 Speaker sentences   6:  7)   #utts: 1
 id: (7)

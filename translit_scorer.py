@@ -3,6 +3,7 @@
 import sys
 import os
 from SylError import SylError
+from Constants import Constants
 
 if __name__ == '__main__':
   try:
@@ -13,10 +14,14 @@ if __name__ == '__main__':
 
 SYL_DELIM = '.'
 SUBSYL_DELIM = ' '
-ONSET = 'ONSET'
-NUCLEUS = 'NUCLEUS'
-CODA = 'CODA'
-TONE = 'TONE'
+ONSET = Constants.ONSET
+NUCLEUS = Constants.NUCLEUS
+CODA = Constants.CODA
+TONE = Constants.TONE
+
+REF = Constants.REF
+HYP = Constants.HYP
+EVAL = Constants.EVAL
 
 #---------------------------------------------------------------------------#
 def readLangSpecs(specPath):
@@ -69,6 +74,7 @@ def computeAllSylErrors(output, ref, sclitePath, langSpecs):
   oTonesList = []
   rTonesList = []
 
+
   for i in range(len(output)):
     outputEntry = output[i];
     refEntry = ref[i];
@@ -91,28 +97,44 @@ def computeAllSylErrors(output, ref, sclitePath, langSpecs):
 
   [tmpOutput, tmpRef] = WriteTmpSylFiles(oPartsList, rPartsList)
   reportPath = ComputeScliteScore(tmpOutput, tmpRef, tmpDir)
-  computeSylErrors(reporPath, oPartsList, oTonesList, rPartsList, rTonesList)
+  computeSylErrors(reportPath, oPartsList, oTonesList, rPartsList, rTonesList, langSpecs)
 
 
 #-------------------------------------------------------------------------#
-def computeSylErrors(reportPath, oTonesPath, rTonesPath):
+def computeSylErrors(reportPath, oPartsList, oTonesList, rPartsList, rTonesList, langSpecs):
   reportFile = open(reportPath, 'r')
+
+  tmpDir = "/".join(reportPath.split("/")[:-1])
+  penaltyFile = open(os.path.join(tmpDir, 'penalty_report.txt'), 'w')
   count = 0
+
+  REF = Constants.REF
+  HYP = Constants.HYP
+  EVAL = Constants.EVAL
+
+  scliteOutput = {}
   for line in reportFile:
-    parts = [part.strip() for part in line.split()]
-    if parts[0] == 'REF:':
-      ref = ' '.join(parts[1:]) + ' '
-    elif parts[0] == 'Eval:':
-      score = ' '.join(parts[1:]) + ' '
+    line = line.strip()
+    if line[:3] == REF:
+      scliteOutput[REF] = line
+    elif line[:3] == HYP:
+      scliteOutput[HYP] = line
+    elif line[:4] == EVAL:
+      scliteOutput[EVAL] = line
       newSylError = SylError()
 
       oParts = oPartsList[count]
       oTone  = oTonesList[count]
       rParts = rPartsList[count]
       rTone  = rTonesList[count]
-      newSylError.computePen(oParts, oTone, rParts, rTone, ref, score)
+      newSylError.constructPen(oParts, oTone, rParts, rTone, scliteOutput, langSpecs)
 
       count = count + 1
+
+      penaltyFile.write(newSylError.disp())
+  
+  reportFile.close()
+  penaltyFile.close()
       
 
 #-------------------------------------------------------------------------#
