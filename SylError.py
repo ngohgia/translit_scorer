@@ -14,12 +14,34 @@ class SylError:
     self.pen = 0
 
   def disp(self):
-    s = "REF: " + str(self.ref) + "\n"
-    s = s +  "HYP: " + str(self.hyp) + "\n"
-    s = s +  "ALIGNED HYP: " + str(self.alignedHyp) + "\n"
-    s = s +  "STRUCT: " + str(self.struct) + "\n"
-    s = s +  "ERRORS: " + str(self.errors) + "\n"
-    s = s +  "PENALTY: " + str(self.pen) + "\n\n"
+    labels = [Constants.ONSET, \
+            Constants.NUCLEUS, \
+            Constants.CODA, \
+            Constants.TONE]
+
+    s = "REF:\t\t\t\t\t{ "
+    for l in labels:
+      if l in self.ref:
+        s = s + l + ": " + self.ref[l] + ", "
+    s = s + "}\n"
+
+    s = s +  "HYP:\t\t\t\t\t{ " + Constants.OTHER + ": " + ' '.join(self.hyp[Constants.OTHER]) + \
+            ", "  + Constants.TONE + ": " + self.hyp[Constants.TONE] + " }\n"
+
+    s = s +  "ALIGNED HYP:\t{ "
+    for l in labels:
+      if l in self.alignedHyp:
+        s = s + l + ": " + self.alignedHyp[l] + ", "
+    s = s + "}\n"
+    s = s +  "STRUCT:\t\t\t\t" + str(self.struct) + "\n"
+
+    s = s +  "ERRORS:\t\t\t\t{ "
+    for l in labels:
+      if l in self.errors:
+        s = s + l + ": " + self.errors[l] + ", "
+    s = s + "}\n"
+
+    s = s +  "PENALTY:\t\t\t" + str(self.pen) + "\n\n"
     return s
  
   def evalScliteOutput(self, hParts, scliteOutput):
@@ -73,6 +95,7 @@ class SylError:
     self.evalScliteOutput(hParts, scliteOutput)
 
     self.hyp[Constants.TONE] = hTone
+    self.hyp[Constants.OTHER] = hParts
     self.ref[Constants.TONE] = rTone
 
     self.errors[Constants.TONE] = Constants.CORRECT
