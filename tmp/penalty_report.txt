@@ -1,63 +1,42 @@
-REF:					{ ONSET: f, NUCLEUS: @I, TONE: _1, }
-HYP:					{ OTHER: f @I, TONE: _2 }
+REF:		{ ONSET: f, NUCLEUS: @I, TONE: _1, }
+HYP:		{ OTHER: f @I, TONE: _1 }
 ALIGNED HYP:	{ ONSET: f, NUCLEUS: @i, }
-STRUCT:				('ONSET', 'NUCLEUS')
-ERRORS:				{ ONSET: C, NUCLEUS: C, TONE: S, }
-PENALTY:			4
+STRUCT:		('ONSET', 'NUCLEUS')
+ERRORS:		{ ONSET: C, NUCLEUS: C, TONE: C, }
+PENALTY:	0
 
-REF:					{ ONSET: s, NUCLEUS: @:, TONE: _3, }
-HYP:					{ OTHER: f @I, TONE: _2 }
+REF:		{ ONSET: s, NUCLEUS: @:, TONE: _3, }
+HYP:		{ OTHER: f @I, TONE: _1 }
 ALIGNED HYP:	{ ONSET: F, NUCLEUS: @I, }
-STRUCT:				('ONSET', 'NUCLEUS')
-ERRORS:				{ ONSET: S, NUCLEUS: S, TONE: S, }
-PENALTY:			12
+STRUCT:		('ONSET', 'NUCLEUS')
+ERRORS:		{ ONSET: S, NUCLEUS: S, TONE: S, }
+PENALTY:	12
 
-REF:					{ ONSET: b_<, NUCLEUS: u, CODA: k, TONE: _2, }
-HYP:					{ OTHER: f @I, TONE: _2 }
+REF:		{ ONSET: b_<, NUCLEUS: u, CODA: k, TONE: _2, }
+HYP:		{ OTHER: f @I, TONE: _1 }
 ALIGNED HYP:	{ ONSET: ***, NUCLEUS: F, CODA: @, }
-STRUCT:				('ONSET', 'NUCLEUS', 'CODA')
-ERRORS:				{ ONSET: D, NUCLEUS: S, CODA: S, TONE: C, }
-PENALTY:			11
+STRUCT:		('ONSET', 'NUCLEUS', 'CODA')
+ERRORS:		{ ONSET: D, NUCLEUS: S, CODA: S, TONE: S, }
+PENALTY:	15
 
-REF:					{ ONSET: f, NUCLEUS: @I, TONE: _1, }
-HYP:					{ OTHER: s r e @:, TONE:  }
-ALIGNED HYP:	{ ONSET: E, NUCLEUS: @:, }
-STRUCT:				('ONSET', 'NUCLEUS')
-ERRORS:				{ ONSET: S, NUCLEUS: S, TONE: S, }
-PENALTY:			18
+REF:		{ ONSET: f, NUCLEUS: @I, TONE: _1, }
+HYP:		{ OTHER: b_< u k, TONE: _2 }
+ALIGNED HYP:	{ ONSET: U, NUCLEUS: K, }
+STRUCT:		('ONSET', 'NUCLEUS')
+ERRORS:		{ ONSET: S, NUCLEUS: S, TONE: S, OTHER: ['I']}
+PENALTY:	15
 
-REF:					{ ONSET: s, NUCLEUS: @:, TONE: _3, }
-HYP:					{ OTHER: s r e @:, TONE:  }
-ALIGNED HYP:	{ ONSET: s, NUCLEUS: @:, }
-STRUCT:				('ONSET', 'NUCLEUS')
-ERRORS:				{ ONSET: C, NUCLEUS: C, TONE: S, }
-PENALTY:			10
+REF:		{ ONSET: s, NUCLEUS: @:, TONE: _3, }
+HYP:		{ OTHER: b_< u k, TONE: _2 }
+ALIGNED HYP:	{ ONSET: U, NUCLEUS: K, }
+STRUCT:		('ONSET', 'NUCLEUS')
+ERRORS:		{ ONSET: S, NUCLEUS: S, TONE: S, OTHER: ['I']}
+PENALTY:	15
 
-REF:					{ ONSET: b_<, NUCLEUS: u, CODA: k, TONE: _2, }
-HYP:					{ OTHER: s r e @:, TONE:  }
-ALIGNED HYP:	{ ONSET: R, NUCLEUS: E, CODA: @, }
-STRUCT:				('ONSET', 'NUCLEUS', 'CODA')
-ERRORS:				{ ONSET: S, NUCLEUS: S, CODA: S, TONE: S, }
-PENALTY:			19
-
-REF:					{ ONSET: f, NUCLEUS: @I, TONE: _1, }
-HYP:					{ OTHER: b_< o, TONE: _2 }
-ALIGNED HYP:	{ ONSET: B, NUCLEUS: O, }
-STRUCT:				('ONSET', 'NUCLEUS')
-ERRORS:				{ ONSET: S, NUCLEUS: S, TONE: S, }
-PENALTY:			12
-
-REF:					{ ONSET: s, NUCLEUS: @:, TONE: _3, }
-HYP:					{ OTHER: b_< o, TONE: _2 }
-ALIGNED HYP:	{ ONSET: B, NUCLEUS: O, }
-STRUCT:				('ONSET', 'NUCLEUS')
-ERRORS:				{ ONSET: S, NUCLEUS: S, TONE: S, }
-PENALTY:			12
-
-REF:					{ ONSET: b_<, NUCLEUS: u, CODA: k, TONE: _2, }
-HYP:					{ OTHER: b_< o, TONE: _2 }
-ALIGNED HYP:	{ ONSET: b_<, NUCLEUS: *, CODA: O, }
-STRUCT:				('ONSET', 'NUCLEUS', 'CODA')
-ERRORS:				{ ONSET: C, NUCLEUS: D, CODA: S, TONE: C, }
-PENALTY:			7
+REF:		{ ONSET: b_<, NUCLEUS: u, CODA: k, TONE: _2, }
+HYP:		{ OTHER: b_< u k, TONE: _2 }
+ALIGNED HYP:	{ ONSET: b_<, NUCLEUS: u, CODA: k, }
+STRUCT:		('ONSET', 'NUCLEUS', 'CODA')
+ERRORS:		{ ONSET: C, NUCLEUS: C, CODA: C, TONE: C, }
+PENALTY:	0
 

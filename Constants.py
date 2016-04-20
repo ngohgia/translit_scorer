@@ -16,3 +16,5 @@ class Constants:
   REF     = 'REF'
   HYP     = 'HYP'
   EVAL    = 'Eval'
+
+  INF     = 999999

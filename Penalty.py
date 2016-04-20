@@ -19,3 +19,5 @@ class Penalty:
     TONE: { CORRECT: 0, DEL: 3, SUB: 4 },
     OTHER: { CORRECT: 0, INS: 3, DEL: 3, SUB: 4 },
   }
+
+  MAX_SYL_PEN = 4 * 4
