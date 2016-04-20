@@ -19,13 +19,13 @@ class SylError:
             Constants.CODA, \
             Constants.TONE]
 
-    s = "REF:\t\t\t\t\t{ "
+    s = "REF:\t\t{ "
     for l in labels:
       if l in self.ref:
         s = s + l + ": " + self.ref[l] + ", "
     s = s + "}\n"
 
-    s = s +  "HYP:\t\t\t\t\t{ " + Constants.OTHER + ": " + ' '.join(self.hyp[Constants.OTHER]) + \
+    s = s +  "HYP:\t\t{ " + Constants.OTHER + ": " + ' '.join(self.hyp[Constants.OTHER]) + \
             ", "  + Constants.TONE + ": " + self.hyp[Constants.TONE] + " }\n"
 
     s = s +  "ALIGNED HYP:\t{ "
@@ -33,15 +33,17 @@ class SylError:
       if l in self.alignedHyp:
         s = s + l + ": " + self.alignedHyp[l] + ", "
     s = s + "}\n"
-    s = s +  "STRUCT:\t\t\t\t" + str(self.struct) + "\n"
+    s = s +  "STRUCT:\t\t" + str(self.struct) + "\n"
 
-    s = s +  "ERRORS:\t\t\t\t{ "
+    s = s +  "ERRORS:\t\t{ "
     for l in labels:
       if l in self.errors:
         s = s + l + ": " + self.errors[l] + ", "
+    if len(self.errors[Constants.OTHER]) > 0:
+      s = s + Constants.OTHER + ": " + str(self.errors[Constants.OTHER])
     s = s + "}\n"
 
-    s = s +  "PENALTY:\t\t\t" + str(self.pen) + "\n\n"
+    s = s +  "PENALTY:\t" + str(self.pen) + "\n\n"
     return s
  
   def evalScliteOutput(self, hParts, scliteOutput):
@@ -61,24 +63,25 @@ class SylError:
       errTok = errTok.strip()
 
       if ref[i] == Constants.DELIM:
-        if len(rTok) > 0 and Constants.DELETED not in rTok:
-          if errTok == '':
-            errTok = Constants.CORRECT
+        if len(rTok) > 0:
+          if Constants.DELETED not in rTok:
+            if errTok == '':
+              errTok = Constants.CORRECT
 
-          label = self.struct[rTokCount]
-          self.errors[label] = errTok
-          self.alignedHyp[label] = hTok
+            label = self.struct[rTokCount]
+            self.errors[label] = errTok
+            self.alignedHyp[label] = hTok
 
-          rTokCount = rTokCount + 1
-        else:
-          self.errors[Constants.OTHER].append(errTok)
+            rTokCount = rTokCount + 1
+          else:
+            self.errors[Constants.OTHER].append(errTok)
 
-        if Constants.DELETED not in hTok:
-          hTokCount = hTokCount + 1
+          if Constants.DELETED not in hTok:
+            hTokCount = hTokCount + 1
 
-        rTok = ''
-        hTok = ''
-        errTok = ''
+          rTok = ''
+          hTok = ''
+          errTok = ''
       else:
         rTok = rTok + ref[i]
         if i < len(hyp):
@@ -141,7 +144,8 @@ class SylError:
 
 #  newSylErr = SylError()
 #  sample = {}
-#  dummy = {}
+#  dummy = {'NUCLEUS': ['@I'], 'ONSET': ['f']}
+
 #  sample['REF']  = 'REF:  b_< U K'
 #  sample['HYP']  = 'HYP:  b_< * O'
 #  sample['Eval'] = 'Eval:     D S'
@@ -178,3 +182,14 @@ class SylError:
 #  # newSylErr.evalScliteOutput(hParts, sample)
 #  newSylErr.constructPen(hParts, hTone, rParts, rTone, sample, dummy)
 
+#  sample['REF']  = 'REF:  *** F @I'
+#  sample['HYP']  = 'HYP:  B_< U K'
+#  sample['Eval'] = 'Eval: I   S S'
+#  rParts = ['f','@I']
+#  rTone = '_1'
+#  hParts = ['b_<', 'u', 'k']
+#  hTone  = '_2'
+#  # newSylErr.processRefSylStruct(rParts, dummy)
+#  # newSylErr.evalScliteOutput(hParts, sample)
+#  newSylErr.constructPen(hParts, hTone, rParts, rTone, sample, dummy)
+#  print newSylErr.disp()
