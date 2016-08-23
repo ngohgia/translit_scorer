@@ -8,9 +8,9 @@ from Penalty import Penalty
 
 if __name__ == '__main__':
   try:
-    script, sclitePath, hypPath, refPath, refLangSpecsPath = sys.argv
+    script, hypPath, refPath, reportDir, reportName, refLangSpecsPath, sclitePath = sys.argv
   except ValueError:
-    print "translit_scorer.py\tsclitePath\thypPath\trefPath\trefLangSpecs"
+    print "translit_scorer.py\thypPath\trefPath\treportDir\treportName\trefLangSpecs\tsclitePath"
     sys.exit(1)
 
 SYL_DELIM = '.'
@@ -19,6 +19,7 @@ ONSET   = Constants.ONSET
 NUCLEUS = Constants.NUCLEUS
 CODA    = Constants.CODA
 TONE    = Constants.TONE
+OTHER   = Constants.OTHER
 
 REF     = Constants.REF
 HYP     = Constants.HYP
@@ -28,12 +29,12 @@ INF     = Constants.INF
 
 #---------------------------------------------------------------------------#
 def readLangSpecs(specPath):
-  langSpecs = {}
+  LANG_SPECS = {}
   specFile = open(specPath, 'r')
   for line in specFile:
     parts = [part.strip() for part in line.split()]
-    langSpecs[parts[0]] = parts[1:]
-  return langSpecs
+    LANG_SPECS[parts[0]] = parts[1:]
+  return LANG_SPECS
 
 #---------------------------------------------------------------------------#
 def getData(hypPath, refPath):
@@ -66,7 +67,7 @@ def ComputeScliteScore(hyp, ref, hypDir):
   return os.path.join(hypDir, reportName + '.pra')
 
 #--------------------------------------------------------------------------#
-def ComputeAllSylsErrors(hyp, ref, sclitePath, langSpecs):
+def ComputeAllSylsErrors(hyp, ref, sclitePath, LANG_SPECS):
   sylList = []
   
   baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -94,17 +95,17 @@ def ComputeAllSylsErrors(hyp, ref, sclitePath, langSpecs):
       idx = idx + 1
 
   [tmpOutput, tmpRef] = WriteTmpSylFiles(hPartsList, rPartsList)
-  reportPath = ComputeScliteScore(tmpOutput, tmpRef, tmpDir)
-  [penalties, sylLvlPenalties] = ComputeSylLvlPenalties(reportPath, hPartsList, hTonesList, rPartsList, rTonesList, langSpecs)
+  scliteReportPath = ComputeScliteScore(tmpOutput, tmpRef, tmpDir)
+  [penalties, sylLvlPenalties] = ComputeSylLvlPenalties(scliteReportPath, hPartsList, hTonesList, rPartsList, rTonesList, LANG_SPECS)
 
   return [hypSyls, refSyls, penalties, sylLvlPenalties]
 
 
 #-------------------------------------------------------------------------#
-def ComputeSylLvlPenalties(reportPath, hPartsList, hTonesList, rPartsList, rTonesList, langSpecs):
-  reportFile = open(reportPath, 'r')
+def ComputeSylLvlPenalties(scliteReportPath, hPartsList, hTonesList, rPartsList, rTonesList, LANG_SPECS):
+  reportFile = open(scliteReportPath, 'r')
 
-  tmpDir = "/".join(reportPath.split("/")[:-1])
+  tmpDir = "/".join(scliteReportPath.split("/")[:-1])
   penaltyFile = open(os.path.join(tmpDir, 'penalty_report.txt'), 'w')
   count = 0
 
@@ -130,7 +131,7 @@ def ComputeSylLvlPenalties(reportPath, hPartsList, hTonesList, rPartsList, rTone
       hTone  = hTonesList[count]
       rParts = rPartsList[count]
       rTone  = rTonesList[count]
-      newSylError.constructPen(hParts, hTone, rParts, rTone, scliteOutput, langSpecs)
+      newSylError.constructPen(hParts, hTone, rParts, rTone, scliteOutput, LANG_SPECS)
 
       count = count + 1
 
@@ -152,14 +153,14 @@ def ComputeSylLvlPenalties(reportPath, hPartsList, hTonesList, rPartsList, rTone
 #-------------------------------------------------------------------------#
 def SplitTones(hSyl, rSyl):
   hParts = [part.strip() for part in hSyl.split(SUBSYL_DELIM)]
-  if hParts[-1] in langSpecs[TONE]:
+  if hParts[-1] in LANG_SPECS[TONE]:
     hTone = hParts[-1]
     hParts = hParts[:-1]
   else:
     hTone = ''
 
   rParts = [part.strip() for part in rSyl.split(SUBSYL_DELIM)]
-  if rParts[-1] in langSpecs[TONE]:
+  if rParts[-1] in LANG_SPECS[TONE]:
     rTone = rParts[-1]
     rParts = rParts[:-1]
   else:
@@ -195,13 +196,16 @@ def WriteTmpSylFiles(hPartsList, rPartsList):
 
 #-------------------------------------------------------------------------#
 def ComputePenalties(hyp, ref):
+  allErrors = []
   for i in range(len(hyp)):
-    ComputeEntryPenalties(hyp[i], ref[i])
+    allEntryErrors = ComputeEntryPenalties(hyp[i], ref[i])
+    allErrors.append(allEntryErrors) 
+  return allErrors
 
 
 #-------------------------------------------------------------------------#
 def ComputeEntryPenalties(hyp, ref):
-  [hypSyls, refSyls, penalties, sylLvlPenalties] = ComputeAllSylsErrors(hyp, ref, sclitePath, langSpecs)
+  [hypSyls, refSyls, penalties, sylLvlPenalties] = ComputeAllSylsErrors(hyp, ref, sclitePath, LANG_SPECS)
 
   penalty = {}
   path = {}
@@ -244,52 +248,256 @@ def ComputeEntryPenalties(hyp, ref):
                     path[(i, j, m, n)] = (k, h)
   
   report = { 'hyp': [], 'ref': [], 'pen': [], 'text': [] }
-  DecodeAlignment(0, hypLen, 0, refLen, path, hypSyls, refSyls, sylLvlPenalties, report)
-#   for i in range(hypLen+1):
-#     for j in range(i, refLen+1):
-#       for k in range(hypLen+1):
-#         for l in range(k, refLen+1):
-#           key = (i, j, k, l)
-#           print str(key) + ": " + str(penalty[key])
-#           if j == i+1 and l == k+1:
-#             print str(hypSyls[i]) + "\t" + str(refSyls[k])
+  allEntryErrors = []
+  DecodeAlignment(0, hypLen, 0, refLen, path, hypSyls, refSyls, sylLvlPenalties, allEntryErrors)
+  for e in allEntryErrors:
+    print e.disp()
+  return allEntryErrors
 
 #-------------------------------------------------------------------------#
-def DecodeAlignment(i, j, m, n, path, hypSyls, refSyls, sylLvlPenalties, report):
+def DecodeAlignment(i, j, m, n, path, hypSyls, refSyls, sylLvlPenalties, allEntryErrors):
   label = (i, j, m, n)
   if label not in path:
     pen = 0
     hSyl = hypSyls[i:j]
-    if len(hSyl) > 0:
-      hSyl = tuple(hSyl)
     rSyl = refSyls[m:n]
-    if len(rSyl) > 0:
-      rSyl = tuple(rSyl)
+
+    print "\n\n"
+    print str(hSyl) + " - " + str(rSyl)
+
     if len(hSyl) > 0 and len(rSyl) > 0:
-      report['text'] == report['text'].append(sylLvlPenalties[(hSyl, rSyl)].disp())
+      hSyl = tuple(hSyl)
+      rSyl = tuple(rSyl)
       pen = sylLvlPenalties[(hSyl, rSyl)].pen
+      sylError = sylLvlPenalties[(hSyl, rSyl)]
+      allEntryErrors.append(sylError)
     else:
+      sylError = SylError()
       if len(hSyl) == 0:
-        hSyl = '*'
-      if len(rSyl) == 0:
-        rSyl = '*'
-      pen = Penalty.MAX_SYL_PEN
-
-      tmp = "REF:\t\t" + str(hSyl) + "\n"
-      tmp = tmp + "HYP:\t\t" + str(rSyl) + "\n"
-      tmp = tmp + "PENALTY:\t" + str(pen) + "\n\n"
-
-      report['text'].append(tmp)
-      report['hyp'].append(hSyl)
-      report['ref'].append(rSyl)
-      report['pen'].append(pen)
+        fullSyl = rSyl[0]
+        [sylStruct, pen, fullSylStruct, emptySylStruct] = ComputeEmptySylPen(fullSyl)
+        sylError.struct = sylStruct
+        sylError.pen = pen
+        sylError.ref = fullSylStruct
+        sylError.alignedHyp = emptySylStruct
+        sylError.hyp[OTHER] = ' '.join(sylError.alignedHyp.values()[0:-1])
+        sylError.hyp[TONE] = sylError.alignedHyp[TONE]
+        for l in list(sylError.struct) + [TONE]:
+          sylError.errors[l] = Penalty.DEL
+      elif len(rSyl) == 0:
+        fullSyl = hSyl[0]
+        [sylStruct, pen, fullSylStruct, emptySylStruct] = ComputeEmptySylPen(fullSyl)
+        sylError.struct = sylStruct
+        sylError.pen = pen
+        sylError.ref = emptySylStruct
+        sylError.alignedHyp = fullSylStruct
+        sylError.hyp[OTHER] = ' '.join(sylError.alignedHyp.values()[0:-1])
+        sylError.hyp[TONE] = sylError.alignedHyp[TONE]
+        for l in list(sylError.struct) + [TONE]:
+          sylError.errors[l] = Penalty.INS
+      allEntryErrors.append(sylError)
   else:
     (k, h) = path[label]
-    DecodeAlignment(i, k, m, h, path, hypSyls, refSyls, sylLvlPenalties, report)
-    DecodeAlignment(k, j, h, n, path, hypSyls, refSyls, sylLvlPenalties, report)
+    DecodeAlignment(i, k, m, h, path, hypSyls, refSyls, sylLvlPenalties, allEntryErrors)
+    DecodeAlignment(k, j, h, n, path, hypSyls, refSyls, sylLvlPenalties, allEntryErrors)
 
+#-------------------------------------------------------------------------#
+def ComputeEmptySylPen(fullSyl):
+  newSylError = SylError()
+  parts = fullSyl.split(' ')
+  tone = parts[-1]
+  fullTonelessParts = parts[0:len(parts)-1]
+
+  newSylError.processRefSylStruct(fullTonelessParts, LANG_SPECS)
+
+  labels = list(newSylError.struct) + [TONE]
+  fullSylStruct = {}
+  emptySylStruct = {}
+  for i in range(len(labels)):
+    l = labels[i]
+    fullSylStruct[l] = parts[i]
+    emptySylStruct[l] = '*'
+  pen = len(labels) * Penalty.MAX_SUBSYL_PEN
+  return [newSylError.struct, pen, fullSylStruct, emptySylStruct]
+
+#-------------------------------------------------------------------------#
+def reportErrors(allErrors):
+  summaryPath = os.path.join(reportDir, reportName + '.summary.txt')
+  fullReportPath = os.path.join(reportDir, reportName + '.full.csv')
+
+  makeSummary(allErrors, summaryPath)
+  makeFullReport(allErrors, fullReportPath)
+
+#-------------------------------------------------------------------------#
+def makeSummary(allErrors, summaryPath):
+  summaryFile = open(summaryPath, 'w')
+  label = [ONSET, NUCLEUS, CODA, TONE]
+
+  stringCount = len(allErrors)
+  wrongStringCount = 0
+  stringWithWrongSylStructCount = 0
+
+  wrongSylStructCount = 0
+  wrongSylCount = 0
+  sylCount = 0
+
+  wrongSubsylCount = 0
+  wrongSubsylCountByLabelInString = {}
+  subsylCountByLabel = {ONSET: 0, NUCLEUS: 0, CODA: 0, TONE: 0}
+  subsylCountByLabelInCorrectStructSyl = {ONSET: 0, NUCLEUS: 0, CODA: 0, TONE: 0}
+  allWrongSubsylCountByLabel = {ONSET: {}, NUCLEUS: {}, CODA: {}, TONE: {}}
+  allWrongSubsylCountByLabelInCorrectStructString = {ONSET: {}, NUCLEUS: {}, CODA: {}, TONE: {}}
+  subsylCount = 0
+    
+  stringWithWrongTonelessSubylUnitsCount = 0
+  toneWithCorrectTonelessSubsylUnitsCount = 0
+  wrongToneWithCorrectTonelessSubsylUnitsCount = {}
+
+  for i in range(stringCount):
+    error = allErrors[i]
+    wrongSubsylCountByLabelInString = {ONSET: {}, NUCLEUS: {}, CODA: {}, TONE: {}}
+    subsylCountByLabelInString = {ONSET: 0, NUCLEUS: 0, CODA: 0, TONE: 0}
+
+    isWrongString = False
+    hasWrongSylStruct = False
+    hasWrongTonelessSubsylUnits = False
+    for sylError in error:
+      wrongSubsylCountByLabelInSyl = {ONSET: {}, NUCLEUS: {}, CODA: {}, TONE: {}}
+      sylCount = sylCount + 1
+      isSylWrong = False
+      isSylStructWrong = False
+      for l in label:
+        if l in sylError.ref:
+          subsylCount = subsylCount + 1
+          subsylCountByLabel[l] = subsylCountByLabel[l] + 1
+          subsylCountByLabelInString[l] = subsylCountByLabelInString[l] + 1
+          if sylError.errors[l] != Penalty.CORRECT:
+            subsylError = sylError.errors[l]
+            isWrongString = True
+            isSylWrong = True
+
+            wrongSubsylCount = wrongSubsylCount + 1
+            if subsylError == Penalty.DEL or subsylError == Penalty.INS:
+               isSylStructWrong = True
+               hasWrongSylStruct = True
+               if l != TONE:
+                 hasWrongTonelessSubsylUnits = True
+            if subsylError not in wrongSubsylCountByLabelInSyl[l]:
+              wrongSubsylCountByLabelInSyl[l][subsylError] = 1
+            else:
+              wrongSubsylCountByLabelInSyl[l][subsylError] = wrongSubsylCountByLabelInSyl[l][subsylError] + 1
+
+            if subsylError not in allWrongSubsylCountByLabel[l]:
+              allWrongSubsylCountByLabel[l][subsylError] = 1
+            else:
+              allWrongSubsylCountByLabel[l][subsylError] = allWrongSubsylCountByLabel[l][subsylError] + 1
+      for l in label:
+        for e in wrongSubsylCountByLabelInSyl[l]:
+          if e not in wrongSubsylCountByLabelInString[l]:
+            wrongSubsylCountByLabelInString[l][e] = wrongSubsylCountByLabelInSyl[l][e]
+          else:
+            wrongSubsylCountByLabelInString[l][e] = wrongSubsylCountByLabelInString[l][e] + wrongSubsylCountByLabelInSyl[l][e]
+
+
+      if isSylWrong:
+        wrongSylCount = wrongSylCount + 1
+      if isSylStructWrong:
+        wrongSylStructCount = wrongSylStructCount + 1
+    if hasWrongSylStruct:
+      stringWithWrongSylStructCount = stringWithWrongSylStructCount + 1
+    else:
+      for l in label:
+        subsylCountByLabelInCorrectStructSyl[l] = subsylCountByLabelInCorrectStructSyl[l] + subsylCountByLabelInString[l]
+        for e in wrongSubsylCountByLabelInString[l]:
+          if e not in allWrongSubsylCountByLabelInCorrectStructString[l]:
+            allWrongSubsylCountByLabelInCorrectStructString[l][e] = wrongSubsylCountByLabelInString[l][e]
+          else:
+            allWrongSubsylCountByLabelInCorrectStructString[l][e] = allWrongSubsylCountByLabelInCorrectStructString[l][e] + wrongSubsylCountByLabelInString[l][e]
+
+    if hasWrongTonelessSubsylUnits:
+      stringWithWrongTonelessSubylUnitsCount = stringWithWrongTonelessSubylUnitsCount + 1
+    else:
+      if TONE in wrongSubsylCountByLabelInString:
+        for e in wrongSubsylCountByLabelInString[TONE]:
+          wrongToneWithCorrectTonelessSubsylUnitsCount[e] = wrongToneWithCorrectTonelessSubsylUnitsCount[e] + wrongSubsylCountByLabelInString[TONE][e]
+          toneWithCorrectTonelessSubsylUnitsCount = toneWithCorrectTonelessSubsylUnitsCount + len(error)
+      
+
+    if isWrongString:
+      wrongStringCount = wrongStringCount + 1 
+  
+  summaryFile.write('String error rate: ' + getErrorFormat(wrongStringCount, stringCount) + '\n')
+  summaryFile.write('Syllable error rate: ' + getErrorFormat(wrongSylCount, sylCount) + '\n')
+  summaryFile.write('Subsyllabic unit error rate: ' + getErrorFormat(wrongSubsylCount, subsylCount) + '\n')
+  for l in label:
+    overallError = sum(allWrongSubsylCountByLabel[l].values()) 
+    summaryFile.write('\t' + l + ': ' + getErrorFormat(overallError, subsylCountByLabel[l]) + '\n')
+    for e in allWrongSubsylCountByLabel[l]:
+      summaryFile.write('\t\t' + e + ': ' + getErrorFormat(allWrongSubsylCountByLabel[l][e], overallError) + '\n')
+  
+  summaryFile.write('\nString with wrong syllabic structure: ' + getErrorFormat(stringWithWrongSylStructCount , stringCount) + '\n')
+  summaryFile.write('Out of ' + getErrorFormat(stringCount - stringWithWrongSylStructCount, stringCount) + ' strings with correct syllabic structure: \n')
+  for l in label:
+    overallError = sum(allWrongSubsylCountByLabelInCorrectStructString[l].values()) 
+    summaryFile.write('\t' + l + ': ' + getErrorFormat(overallError, subsylCountByLabelInCorrectStructSyl[l]) + '\n')
+    for e in allWrongSubsylCountByLabelInCorrectStructString[l]:
+      summaryFile.write('\t\t' + e + ': ' + getErrorFormat(allWrongSubsylCountByLabelInCorrectStructString[l][e], overallError) + '\n')
+  
+  summaryFile.write('\nString with wrong toneless subsyllabic units ' + getErrorFormat(stringWithWrongTonelessSubylUnitsCount , stringCount) + '\n')
+  summaryFile.write('Out of ' + getErrorFormat(stringCount - stringWithWrongTonelessSubylUnitsCount, stringCount) + ' strings with correct toneless subsyllabic units: \n')
+
+  for e in wrongToneWithCorrectTonelessSubsylUnitsCount:
+    summaryFile.write('\t' + e + ': ' + getErrorFormat(wrongToneWithCorrectTonelessSubsylUnitsCount[e], toneWithCorrectTonelessSubsylUnitsCount) + '\n')
+    
+  summaryFile.close()
+
+#-------------------------------------------------------------------------#
+def getErrorFormat(errorCount, count):
+  return '{0:.2f}'.format(errorCount * 100.0/count) + '% (' + str(errorCount) + '/' + str(count) + ')'
+  
+
+#-------------------------------------------------------------------------#
+def makeFullReport(allErrors, fullReportPath):
+  DELIM = ', '
+  fullReportFile = open(fullReportPath, 'w')
+  label = [ONSET, NUCLEUS, CODA, TONE]
+
+  for i in range(len(allErrors)):
+    error = allErrors[i]
+
+    refEntry = []
+    hypEntry = []
+    errorEntry = []
+    for sylError in error:
+      refTmp = []
+      hypTmp = []
+      errorTmp = []
+      print sylError.ref
+      print sylError.alignedHyp
+      for l in label:
+        if l in sylError.ref:
+          refTmp.append(sylError.ref[l])
+          hypTmp.append(sylError.alignedHyp[l])
+          if sylError.errors[l] != Penalty.CORRECT:
+            errorTmp.append(sylError.errors[l] + ' (' + l[0] + ')')
+          else:
+            errorTmp.append(' ')
+      refEntry.append(DELIM.join(refTmp))
+      hypEntry.append(DELIM.join(hypTmp))
+      errorEntry.append(DELIM.join(errorTmp))
+    txt = str(i+1) + ', '
+    txt = txt + (DELIM + DELIM).join(refEntry) + '\n'
+    fullReportFile.write(txt)
+    txt = ' ' + DELIM + (DELIM + DELIM).join(hypEntry) + '\n'
+    fullReportFile.write(txt)
+    txt = ' ' + DELIM + (DELIM + DELIM).join(errorEntry) + '\n'
+    fullReportFile.write(txt)
+     
+  fullReportFile.close()
 
 
 [hyp, ref] = getData(hypPath, refPath)
-langSpecs = readLangSpecs(refLangSpecsPath)
-ComputePenalties(hyp, ref)
+LANG_SPECS = readLangSpecs(refLangSpecsPath)
+allErrors = ComputePenalties(hyp, ref)
+
+reportErrors(allErrors)

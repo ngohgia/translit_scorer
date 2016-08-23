@@ -45,7 +45,7 @@ class SylError:
 
     s = s +  "PENALTY:\t" + str(self.pen) + "\n\n"
     return s
- 
+
   def evalScliteOutput(self, hParts, scliteOutput):
     ref = scliteOutput[Constants.REF][6:] + Constants.DELIM
     hyp = scliteOutput[Constants.HYP][6:] + Constants.DELIM
@@ -57,6 +57,7 @@ class SylError:
     rTokCount = 0
     hTokCount = 0
 
+    count = 0
     for i in range(len(ref)):
       rTok = rTok.strip()
       hTok = hTok.strip()
@@ -100,6 +101,7 @@ class SylError:
     self.hyp[Constants.TONE] = hTone
     self.hyp[Constants.OTHER] = hParts
     self.ref[Constants.TONE] = rTone
+    self.alignedHyp[Constants.TONE] = hTone
 
     self.errors[Constants.TONE] = Constants.CORRECT
     if hTone != rTone:
@@ -108,6 +110,18 @@ class SylError:
       self.errors[Constants.TONE] = Constants.DEL
 
     self.computePen()
+    self.correctAlignedHyp(hParts)
+
+  def correctAlignedHyp(self, hParts):
+    print hParts
+    print self.alignedHyp
+    count = 0
+    for l in self.alignedHyp:
+      if l != Constants.TONE and Constants.DELETED not in self.alignedHyp[l]:
+        self.alignedHyp[l] = hParts[count]
+        count = count + 1
+      elif Constants.DELETED in self.alignedHyp[l]:
+        self.alignedHyp[l] = Constants.DELETED
 
   def computePen(self):
     self.pen = 0

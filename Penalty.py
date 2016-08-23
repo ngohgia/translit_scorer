@@ -20,4 +20,5 @@ class Penalty:
     OTHER: { CORRECT: 0, INS: 3, DEL: 3, SUB: 4 },
   }
 
-  MAX_SYL_PEN = 4 * 4
+  MAX_SUBSYL_PEN = 4
+  MAX_SYL_PEN = 4 * MAX_SUBSYL_PEN
