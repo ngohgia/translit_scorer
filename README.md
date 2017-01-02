@@ -1,4 +1,4 @@
-# Transliteraiton Scorer
+# [WIP] Transliteration Scorer
 
 Run `python translit_scorer.py   hypPath   refPath  reportDir  reportName  refLangSpecs  sclitePath`
 
