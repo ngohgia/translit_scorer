@@ -1,3 +1,5 @@
+import sys
+
 from Constants import Constants
 from Penalty import Penalty
 
@@ -113,8 +115,8 @@ class SylError:
     self.correctAlignedHyp(hParts)
 
   def correctAlignedHyp(self, hParts):
-    print hParts
-    print self.alignedHyp
+    # print hParts
+    # print self.alignedHyp
     count = 0
     for l in self.alignedHyp:
       if l != Constants.TONE and Constants.DELETED not in self.alignedHyp[l]:
@@ -125,8 +127,12 @@ class SylError:
 
   def computePen(self):
     self.pen = 0
+    # print "\tERRORS"
+    # print self.errors
+    # print "\tREF"
+    # print self.ref
     for label in [Constants.ONSET, Constants.NUCLEUS, Constants.CODA, Constants.TONE]:
-      if label in self.ref:
+      if label in self.errors:
         err = self.errors[label]
         self.pen = self.pen + Penalty.vals[label][err]
     for err in self.errors[Constants.OTHER]:
@@ -139,22 +145,24 @@ class SylError:
       self.ref[Constants.ONSET] = rParts[0]
       self.ref[Constants.NUCLEUS] = rParts[1]
       self.ref[Constants.CODA] = rParts[2]
-      self.struct = (Constants.ONSET, Constants.NUCLEUS, Constants.CODA) 
+      self.struct = (Constants.ONSET, Constants.NUCLEUS, Constants.CODA, ) 
     elif len(rParts) == 2:
       if rParts[0] in langSpecs[Constants.NUCLEUS]:
         self.ref[Constants.NUCLEUS] = rParts[0]
         self.ref[Constants.CODA] = rParts[1]
-        self.struct = (Constants.NUCLEUS, Constants.CODA)
+        self.struct = (Constants.NUCLEUS, Constants.CODA, )
       if rParts[0] in langSpecs[Constants.ONSET]:
         self.ref[Constants.ONSET] = rParts[0]
         self.ref[Constants.NUCLEUS] = rParts[1]
-        self.struct = (Constants.ONSET, Constants.NUCLEUS)
+        self.struct = (Constants.ONSET, Constants.NUCLEUS, )
     elif len(rParts) == 1:
       self.ref[Constants.NUCLEUS] = rParts[0]
-      self.struct = (Constants.NUCLEUS)
+      self.struct = (Constants.NUCLEUS, )
     else:
       print("Reference syllable with an invalid length!")
-      exit
+      print self.ref
+      print self.struct
+      sys.exit(1)
 
 #  newSylErr = SylError()
 #  sample = {}

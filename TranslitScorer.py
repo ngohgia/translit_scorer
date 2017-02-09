@@ -10,7 +10,7 @@ if __name__ == '__main__':
   try:
     script, hypPath, refPath, reportDir, reportName, refLangSpecsPath, sclitePath = sys.argv
   except ValueError:
-    print "translit_scorer.py\thypPath\trefPath\treportDir\treportName\trefLangSpecs\tsclitePath"
+    print "TranslitScorer.py\thypPath\trefPath\treportDir\treportName\trefLangSpecs\tsclitePath"
     sys.exit(1)
 
 SYL_DELIM = '.'
@@ -43,12 +43,12 @@ def getData(hypPath, refPath):
 
   hypFile = open(hypPath, 'r');
   for line in hypFile:
-    hyp.append(line.strip())
+    hyp.append(stripTag(line))
   hypFile.close()
 
   refFile = open(refPath, 'r');
   for line in refFile:
-    ref.append(line.strip())
+    ref.append(stripTag(line))
   refFile.close()
 
   if len(hyp) != len(ref):
@@ -56,6 +56,11 @@ def getData(hypPath, refPath):
     exit(1)
 
   return [hyp, ref];
+
+#--------------------------------------------------------------------------#
+def stripTag(line):
+  parts = [part.strip() for part in line.split(' ')]
+  return ' '.join(parts[:-1])
 
 #--------------------------------------------------------------------------#
 def ComputeScliteScore(hyp, ref, hypDir):
@@ -367,10 +372,15 @@ def makeSummary(allErrors, summaryPath):
       isSylWrong = False
       isSylStructWrong = False
       for l in label:
-        if l in sylError.ref:
+        if l in sylError.errors:
           subsylCount = subsylCount + 1
           subsylCountByLabel[l] = subsylCountByLabel[l] + 1
           subsylCountByLabelInString[l] = subsylCountByLabelInString[l] + 1
+
+          print "\nREF: " + str(sylError.ref)
+          print "HYP: " + str(sylError.hyp)
+          print "ALIGNED_HYP: " + str(sylError.alignedHyp)
+          print "ERR: " + str(sylError.errors)
           if sylError.errors[l] != Penalty.CORRECT:
             subsylError = sylError.errors[l]
             isWrongString = True
@@ -419,6 +429,8 @@ def makeSummary(allErrors, summaryPath):
     else:
       if TONE in wrongSubsylCountByLabelInString:
         for e in wrongSubsylCountByLabelInString[TONE]:
+          if e not in wrongToneWithCorrectTonelessSubsylUnitsCount:
+            wrongToneWithCorrectTonelessSubsylUnitsCount[e] = 0
           wrongToneWithCorrectTonelessSubsylUnitsCount[e] = wrongToneWithCorrectTonelessSubsylUnitsCount[e] + wrongSubsylCountByLabelInString[TONE][e]
           toneWithCorrectTonelessSubsylUnitsCount = toneWithCorrectTonelessSubsylUnitsCount + len(error)
       
@@ -475,7 +487,7 @@ def makeFullReport(allErrors, fullReportPath):
       print sylError.ref
       print sylError.alignedHyp
       for l in label:
-        if l in sylError.ref:
+        if l in sylError.errors:
           refTmp.append(sylError.ref[l])
           hypTmp.append(sylError.alignedHyp[l])
           if sylError.errors[l] != Penalty.CORRECT:
