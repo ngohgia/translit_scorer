@@ -2,80 +2,40 @@
 
 		DUMP OF SYSTEM ALIGNMENT STRUCTURE
 
-System name:   /mnt/eql/p4/users/external/ngohgia/translit_scorer/tmp/tmp_hyp_syls.txt
+System name:   /Users/ngohgia/Work/transliteration/translit_scorer/tmp/tmp_hyp_syls.txt
 
 Speakers: 
     0:  1)
     1:  2)
     2:  3)
     3:  4)
-    4:  5)
-    5:  6)
-    6:  7)
-    7:  8)
-    8:  9)
 
 Speaker sentences   0:  1)   #utts: 1
 id: (1)
 Scores: (#C #S #D #I) 2 0 0 0
-REF:  a: n 
-HYP:  a: n 
+REF:  w ei 
+HYP:  w ei 
 Eval:      
 
 Speaker sentences   1:  2)   #utts: 1
 id: (2)
 Scores: (#C #S #D #I) 0 2 0 0
-REF:  G  @: 
-HYP:  A: N  
-Eval: S  S  
+REF:  E N  
+HYP:  W EI 
+Eval: S S  
 
 Speaker sentences   2:  3)   #utts: 1
 id: (3)
-Scores: (#C #S #D #I) 1 0 1 1
-REF:  R a: * 
-HYP:  * a: N 
-Eval: D    I 
+Scores: (#C #S #D #I) 1 1 0 0
+REF:  W ei 
+HYP:  N ei 
+Eval: S    
 
 Speaker sentences   3:  4)   #utts: 1
 id: (4)
-Scores: (#C #S #D #I) 0 2 0 0
-REF:  A: N  
-HYP:  G  @: 
-Eval: S  S  
-
-Speaker sentences   4:  5)   #utts: 1
-id: (5)
-Scores: (#C #S #D #I) 2 0 0 0
-REF:  g @: 
-HYP:  g @: 
-Eval:      
-
-Speaker sentences   5:  6)   #utts: 1
-id: (6)
-Scores: (#C #S #D #I) 0 2 0 0
-REF:  R A: 
-HYP:  G @: 
-Eval: S S  
-
-Speaker sentences   6:  7)   #utts: 1
-id: (7)
 Scores: (#C #S #D #I) 1 0 1 1
-REF:  * a: N 
-HYP:  R a: * 
-Eval: I    D 
-
-Speaker sentences   7:  8)   #utts: 1
-id: (8)
-Scores: (#C #S #D #I) 0 2 0 0
-REF:  G @: 
-HYP:  R A: 
-Eval: S S  
-
-Speaker sentences   8:  9)   #utts: 1
-id: (9)
-Scores: (#C #S #D #I) 2 0 0 0
-REF:  r a: 
-HYP:  r a: 
-Eval:      
+REF:  E n ** 
+HYP:  * n EI 
+Eval: D   I  
 
 
