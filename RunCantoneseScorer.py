@@ -5,7 +5,7 @@ import os
 import os.path as op
 import subprocess
 
-sclitePath = '/Users/ngohgia/Work/transliteration/utilities/sclite'
+sclitePath = '/data/users/ngohgia/data_drive/transliterator/utilities/sclite/sclite'
 
 # -------------------------- MANDARIN ------------------------------ #
 rootDir = os.getcwd()
