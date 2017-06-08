@@ -160,8 +160,7 @@ class SylError:
       self.struct = (Constants.NUCLEUS, )
     else:
       print("Reference syllable with an invalid length!")
-      print self.ref
-      print self.struct
+      print "Syllable: " + str(rParts)
       sys.exit(1)
 
 #  newSylErr = SylError()

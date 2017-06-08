@@ -59,7 +59,7 @@ def getData(hypPath, refPath):
 
 #--------------------------------------------------------------------------#
 def stripTag(line):
-  parts = [part.strip() for part in line.split(' ')]
+  parts = [part.strip() for part in line.split()]
   return ' '.join(parts[:-1])
 
 #--------------------------------------------------------------------------#
@@ -74,6 +74,10 @@ def ComputeScliteScore(hyp, ref, hypDir):
 #--------------------------------------------------------------------------#
 def ComputeAllSylsErrors(hyp, ref, sclitePath, LANG_SPECS):
   sylList = []
+
+  print "Scoring"
+  print "\tHyp: " + str(hyp)
+  print "\tRef: " + str(ref)
   
   baseDir = os.path.dirname(os.path.abspath(__file__))
   tmpDir = os.path.join(baseDir, 'tmp')
@@ -85,7 +89,7 @@ def ComputeAllSylsErrors(hyp, ref, sclitePath, LANG_SPECS):
 
   hypSyls = [part.strip() for part in hyp.split(SYL_DELIM)]
   refSyls = [part.strip() for part in ref.split(SYL_DELIM)]
-  
+
   idx = 1
   for hSyl in hypSyls:
     for rSyl in refSyls:
@@ -280,22 +284,22 @@ def DecodeAlignment(i, j, m, n, path, hypSyls, refSyls, sylLvlPenalties, allEntr
       sylError = SylError()
       if len(hSyl) == 0:
         fullSyl = rSyl[0]
-        [sylStruct, pen, fullSylStruct, emptySylStruct] = ComputeEmptySylPen(fullSyl)
+        [sylStruct, pen, refSylStruct, alignedSylStruct] = ComputeMaxPenFromRefSyl(fullSyl)
         sylError.struct = sylStruct
         sylError.pen = pen
-        sylError.ref = fullSylStruct
-        sylError.alignedHyp = emptySylStruct
+        sylError.ref = refSylStruct
+        sylError.alignedHyp = alignedSylStruct
         sylError.hyp[OTHER] = ' '.join(sylError.alignedHyp.values()[0:-1])
         sylError.hyp[TONE] = sylError.alignedHyp[TONE]
         for l in list(sylError.struct) + [TONE]:
           sylError.errors[l] = Penalty.DEL
       elif len(rSyl) == 0:
         fullSyl = hSyl[0]
-        [sylStruct, pen, fullSylStruct, emptySylStruct] = ComputeEmptySylPen(fullSyl)
+        [sylStruct, pen, refSylStruct, alignedSylStruct] = ComputeMaxPenFromHypSyl(fullSyl)
         sylError.struct = sylStruct
         sylError.pen = pen
-        sylError.ref = emptySylStruct
-        sylError.alignedHyp = fullSylStruct
+        sylError.ref = refSylStruct
+        sylError.alignedHyp = alignedSylStruct
         sylError.hyp[OTHER] = ' '.join(sylError.alignedHyp.values()[0:-1])
         sylError.hyp[TONE] = sylError.alignedHyp[TONE]
         for l in list(sylError.struct) + [TONE]:
@@ -307,23 +311,33 @@ def DecodeAlignment(i, j, m, n, path, hypSyls, refSyls, sylLvlPenalties, allEntr
     DecodeAlignment(k, j, h, n, path, hypSyls, refSyls, sylLvlPenalties, allEntryErrors)
 
 #-------------------------------------------------------------------------#
-def ComputeEmptySylPen(fullSyl):
+def ComputeMaxPenFromHypSyl(syl):
+  parts = syl.split(' ')
+  sylStruct = [ OTHER ]
+
+  refSylStruct = { OTHER: '*', TONE: '*' }
+  alignedSylStruct = { OTHER: syl, TONE: '*' }
+  pen = len(parts) * Penalty.MAX_SUBSYL_PEN
+  return [sylStruct, pen, refSylStruct, alignedSylStruct]
+  
+#-------------------------------------------------------------------------#
+def ComputeMaxPenFromRefSyl(refSyl):
   newSylError = SylError()
-  parts = fullSyl.split(' ')
+  parts = [part.strip() for part in refSyl.split() if len(part) > 0]
   tone = parts[-1]
   fullTonelessParts = parts[0:len(parts)-1]
 
   newSylError.processRefSylStruct(fullTonelessParts, LANG_SPECS)
 
   labels = list(newSylError.struct) + [TONE]
-  fullSylStruct = {}
-  emptySylStruct = {}
+  refSylStruct = {}
+  alignedSylStruct = {}
   for i in range(len(labels)):
     l = labels[i]
-    fullSylStruct[l] = parts[i]
-    emptySylStruct[l] = '*'
+    refSylStruct[l] = parts[i]
+    alignedSylStruct[l] = '*'
   pen = len(labels) * Penalty.MAX_SUBSYL_PEN
-  return [newSylError.struct, pen, fullSylStruct, emptySylStruct]
+  return [newSylError.struct, pen, refSylStruct, alignedSylStruct]
 
 #-------------------------------------------------------------------------#
 def reportErrors(allErrors):
@@ -451,7 +465,8 @@ def makeSummary(allErrors, summaryPath):
   summaryFile.write('Out of ' + getErrorFormat(stringCount - stringWithWrongSylStructCount, stringCount) + ' strings with correct syllabic structure: \n')
   for l in label:
     overallError = sum(allWrongSubsylCountByLabelInCorrectStructString[l].values()) 
-    summaryFile.write('\t' + l + ': ' + getErrorFormat(overallError, subsylCountByLabelInCorrectStructSyl[l]) + '\n')
+    if subsylCountByLabelInCorrectStructSyl[l] > 0:
+      summaryFile.write('\t' + l + ': ' + getErrorFormat(overallError, subsylCountByLabelInCorrectStructSyl[l]) + '\n')
     for e in allWrongSubsylCountByLabelInCorrectStructString[l]:
       summaryFile.write('\t\t' + e + ': ' + getErrorFormat(allWrongSubsylCountByLabelInCorrectStructString[l][e], overallError) + '\n')
   
@@ -507,6 +522,9 @@ def makeFullReport(allErrors, fullReportPath):
      
   fullReportFile.close()
 
+
+print hypPath
+print refPath
 
 [hyp, ref] = getData(hypPath, refPath)
 LANG_SPECS = readLangSpecs(refLangSpecsPath)
