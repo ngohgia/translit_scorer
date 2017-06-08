@@ -2,40 +2,136 @@
 
 		DUMP OF SYSTEM ALIGNMENT STRUCTURE
 
-System name:   /data/users/ngohgia/data_drive/translit_scorer/tmp/tmp_hyp_syls.txt
+System name:   /mnt/eql/p4/users/external/ngohgia/translit_scorer/tmp/tmp_hyp_syls.txt
 
 Speakers: 
     0:  1)
     1:  2)
     2:  3)
     3:  4)
+    4:  5)
+    5:  6)
+    6:  7)
+    7:  8)
+    8:  9)
+    9:  10)
+   10:  11)
+   11:  12)
+   12:  13)
+   13:  14)
+   14:  15)
+   15:  16)
 
 Speaker sentences   0:  1)   #utts: 1
 id: (1)
-Scores: (#C #S #D #I) 1 0 1 0
-REF:  Z u 
-HYP:  * u 
-Eval: D   
+Scores: (#C #S #D #I) 1 0 0 0
+REF:  a: 
+HYP:  a: 
+Eval:    
 
 Speaker sentences   1:  2)   #utts: 1
 id: (2)
-Scores: (#C #S #D #I) 0 1 1 0
-REF:  M E 
-HYP:  * U 
-Eval: D S 
+Scores: (#C #S #D #I) 1 0 1 0
+REF:  R a: 
+HYP:  * a: 
+Eval: D    
 
 Speaker sentences   2:  3)   #utts: 1
 id: (3)
-Scores: (#C #S #D #I) 0 2 0 0
-REF:  Z U 
-HYP:  M E 
-Eval: S S 
+Scores: (#C #S #D #I) 0 1 1 0
+REF:  F U  
+HYP:  * A: 
+Eval: D S  
 
 Speaker sentences   3:  4)   #utts: 1
 id: (4)
+Scores: (#C #S #D #I) 1 0 1 0
+REF:  R a: 
+HYP:  * a: 
+Eval: D    
+
+Speaker sentences   4:  5)   #utts: 1
+id: (5)
+Scores: (#C #S #D #I) 1 0 0 1
+REF:  * a: 
+HYP:  R a: 
+Eval: I    
+
+Speaker sentences   5:  6)   #utts: 1
+id: (6)
 Scores: (#C #S #D #I) 2 0 0 0
-REF:  m e 
-HYP:  m e 
+REF:  r a: 
+HYP:  r a: 
+Eval:      
+
+Speaker sentences   6:  7)   #utts: 1
+id: (7)
+Scores: (#C #S #D #I) 0 2 0 0
+REF:  F U  
+HYP:  R A: 
+Eval: S S  
+
+Speaker sentences   7:  8)   #utts: 1
+id: (8)
+Scores: (#C #S #D #I) 2 0 0 0
+REF:  r a: 
+HYP:  r a: 
+Eval:      
+
+Speaker sentences   8:  9)   #utts: 1
+id: (9)
+Scores: (#C #S #D #I) 0 1 0 1
+REF:  * A: 
+HYP:  F U  
+Eval: I S  
+
+Speaker sentences   9:  10)   #utts: 1
+id: (10)
+Scores: (#C #S #D #I) 0 2 0 0
+REF:  R A: 
+HYP:  F U  
+Eval: S S  
+
+Speaker sentences  10:  11)   #utts: 1
+id: (11)
+Scores: (#C #S #D #I) 2 0 0 0
+REF:  f u 
+HYP:  f u 
 Eval:     
+
+Speaker sentences  11:  12)   #utts: 1
+id: (12)
+Scores: (#C #S #D #I) 0 2 0 0
+REF:  R A: 
+HYP:  F U  
+Eval: S S  
+
+Speaker sentences  12:  13)   #utts: 1
+id: (13)
+Scores: (#C #S #D #I) 1 0 0 1
+REF:  * a: 
+HYP:  R a: 
+Eval: I    
+
+Speaker sentences  13:  14)   #utts: 1
+id: (14)
+Scores: (#C #S #D #I) 2 0 0 0
+REF:  r a: 
+HYP:  r a: 
+Eval:      
+
+Speaker sentences  14:  15)   #utts: 1
+id: (15)
+Scores: (#C #S #D #I) 0 2 0 0
+REF:  F U  
+HYP:  R A: 
+Eval: S S  
+
+Speaker sentences  15:  16)   #utts: 1
+id: (16)
+Scores: (#C #S #D #I) 2 0 0 0
+REF:  r a: 
+HYP:  r a: 
+Eval:      
 
 
